@@ -65,6 +65,12 @@ public class SoundManager {
         stopAll();
         playFX("million.wav");
     }
+    
+    /** Played when the player hit a milestone.*/
+    public void playMilestone() {
+        stopFX();
+        playFX("milestone.wav");
+    }
 
     public void playStart() { stopBackground(); playFX("start.wav"); }
 
