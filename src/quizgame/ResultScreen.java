@@ -26,6 +26,8 @@ public class ResultScreen extends JDialog {
 
     private ResultScreen(JFrame owner, boolean won, String prize, String safeHaven) {
         super(owner, "Αποτέλεσμα", true);
+        ImageIcon icon = new ImageIcon("resources/icon.jpg");
+        this.setIconImage(icon.getImage());
         setUndecorated(true);
         setSize(540, 400);
         setLocationRelativeTo(owner);
