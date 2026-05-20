@@ -40,6 +40,9 @@ public class MenuScreen extends JFrame {
     // ──────────────────────────────────────────────────────────────────────────
 
     public MenuScreen(List<Question> questions) {
+        ImageIcon icon = new ImageIcon("resources/icon.jpg");
+        this.setIconImage(icon.getImage());
+        
         this.questions    = questions;
         this.soundManager = new SoundManager();
 
