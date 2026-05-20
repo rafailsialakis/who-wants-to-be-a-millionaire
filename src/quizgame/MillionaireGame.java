@@ -73,6 +73,8 @@ public class MillionaireGame extends JFrame {
     // ──────────────────────────────────────────────────────────────────────────
 
     public MillionaireGame(List<Question> questions, SoundManager soundManager) {
+        ImageIcon icon = new ImageIcon("resources/icon.jpg");
+        this.setIconImage(icon.getImage());
         this.soundManager = soundManager;
         this.questions    = new ArrayList<>(questions);
         while (this.questions.size() < 15) this.questions.addAll(this.questions);
