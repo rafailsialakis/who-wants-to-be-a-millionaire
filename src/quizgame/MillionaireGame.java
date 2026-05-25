@@ -11,12 +11,6 @@ import java.util.List;
 /**
  * Main game screen — Who Wants to Be a Millionaire style.
  * Features: 50-50 lifeline, Phone-an-LLM lifeline, prize ladder, dark cinematic theme.
- *
- * Answer flow:
- *   1. Player clicks option  → button turns PENDING (bright blue outline)
- *   2. playAnswerSuspense()  → suspense music starts, all buttons locked
- *   3. After SUSPENSE_MS ms → reveal: correct=green, wrong=red + playCorrect/playWrong
- *   4. resumeBackground()   → game music resumes
  */
 public class MillionaireGame extends JFrame {
 
@@ -39,7 +33,6 @@ public class MillionaireGame extends JFrame {
     private static final Font FONT_PRIZE = new Font("SansSerif", Font.PLAIN, 12);
     private static final Font FONT_LABEL = new Font("Georgia", Font.BOLD, 13);
 
-    /** How long (ms) the suspense music plays before the answer is revealed. */
     private static final int SUSPENSE_MS = 3000;
 
     // ── Prize ladder ───────────────────────────────────────────────────────────
@@ -63,7 +56,7 @@ public class MillionaireGame extends JFrame {
     private JButton btnMute;
 
     // ── UI ─────────────────────────────────────────────────────────────────────
-    private JTextArea lblQuestion;                      // ← was JLabel
+    private JTextArea lblQuestion;
     private JButton[] optionBtns  = new JButton[4];
     private boolean[] eliminated  = new boolean[4];
     private JButton   btnFiftyFifty, btnPhone, btnNext;
@@ -73,8 +66,10 @@ public class MillionaireGame extends JFrame {
     // ──────────────────────────────────────────────────────────────────────────
 
     public MillionaireGame(List<Question> questions, SoundManager soundManager) {
-        ImageIcon icon = new ImageIcon("resources/icon.jpg");
-        this.setIconImage(icon.getImage());
+        // Load icon from classpath so it works in JAR too
+        java.net.URL iconUrl = getClass().getClassLoader().getResource("icon.jpg");
+        if (iconUrl != null) setIconImage(new ImageIcon(iconUrl).getImage());
+
         this.soundManager = soundManager;
         this.questions    = new ArrayList<>(questions);
         while (this.questions.size() < 15) this.questions.addAll(this.questions);
@@ -155,7 +150,6 @@ public class MillionaireGame extends JFrame {
         center.setBackground(BG);
         center.setBorder(new EmptyBorder(30, 36, 20, 24));
 
-        // ── Question card ──────────────────────────────────────────────────────
         JPanel qCard = new JPanel(new BorderLayout());
         qCard.setBackground(CARD);
         qCard.setBorder(BorderFactory.createCompoundBorder(
@@ -163,10 +157,8 @@ public class MillionaireGame extends JFrame {
             new EmptyBorder(20, 24, 20, 24)
         ));
         qCard.setAlignmentX(Component.LEFT_ALIGNMENT);
-        // Taller max height so long questions are fully visible
         qCard.setMaximumSize(new Dimension(Integer.MAX_VALUE, 200));
 
-        // JTextArea wraps text and scrolls — replaces fixed-width JLabel
         lblQuestion = new JTextArea();
         lblQuestion.setFont(FONT_Q);
         lblQuestion.setForeground(WHITE);
@@ -189,7 +181,6 @@ public class MillionaireGame extends JFrame {
         center.add(qCard);
         center.add(Box.createVerticalStrut(22));
 
-        // ── Answer buttons ─────────────────────────────────────────────────────
         String[] labels = {"Α", "Β", "Γ", "Δ"};
         JPanel optGrid = new JPanel(new GridLayout(2, 2, 12, 12));
         optGrid.setOpaque(false);
@@ -205,7 +196,6 @@ public class MillionaireGame extends JFrame {
         center.add(optGrid);
         center.add(Box.createVerticalStrut(18));
 
-        // ── Next button ────────────────────────────────────────────────────────
         btnNext = new JButton("Επόμενη ερώτηση  →");
         btnNext.setFont(FONT_LABEL);
         btnNext.setBackground(new Color(30, 80, 200));
@@ -321,9 +311,8 @@ public class MillionaireGame extends JFrame {
 
         Question q = questions.get(currentIndex);
 
-        // Plain text — JTextArea handles wrapping natively
         lblQuestion.setText(q.getQuestion());
-        lblQuestion.setCaretPosition(0);   // scroll back to top for each new question
+        lblQuestion.setCaretPosition(0);
 
         String[] labels = {"Α.", "Β.", "Γ.", "Δ."};
         String[] opts   = q.getOptions();
@@ -343,40 +332,20 @@ public class MillionaireGame extends JFrame {
         }
     }
 
-    /**
-     * Called when the player clicks an answer button.
-     *
-     * Phase 1 – Suspense (immediate):
-     *   • Highlight the chosen button in PENDING blue
-     *   • Lock all buttons
-     *   • Start suspense music
-     *
-     * Phase 2 – Reveal (after SUSPENSE_MS):
-     *   • Colour chosen button green/red
-     *   • If wrong, reveal the correct button in green after 600 ms
-     *   • Play correct/wrong sound
-     *   • Resume background music
-     *   • Enable "Next" (or auto-navigate away on wrong)
-     */
     private void handleAnswer(int sel) {
         if (answered || suspensePlaying) return;
 
         suspensePlaying = true;
 
-        // ── Phase 1: lock UI, highlight selection, play suspense ──────────────
         for (JButton b : optionBtns) b.setEnabled(false);
-
         optionBtns[sel].setBackground(PENDING);
-
         soundManager.playAnswerSuspense();
 
-        // ── Phase 2: reveal after SUSPENSE_MS ────────────────────────────────
         Timer revealTimer = new Timer(SUSPENSE_MS, ev -> revealAnswer(sel));
         revealTimer.setRepeats(false);
         revealTimer.start();
     }
 
-    /** Reveals the correct/wrong colours and plays the appropriate sound. */
     private void revealAnswer(int sel) {
         answered        = true;
         suspensePlaying = false;
@@ -400,10 +369,9 @@ public class MillionaireGame extends JFrame {
                 soundManager.resumeBackground();
                 btnNext.setEnabled(true);
             }
-        }else {
+        } else {
             soundManager.playWrong();
 
-            // Show the correct answer 600 ms later, then navigate away
             Timer showCorrect = new Timer(600, e2 ->
                 optionBtns[q.getCorrectIndex()].setBackground(CORRECT));
             showCorrect.setRepeats(false);
@@ -530,16 +498,27 @@ public class MillionaireGame extends JFrame {
         body.setBackground(CARD);
         body.setBorder(new EmptyBorder(22, 28, 18, 28));
 
-        JLabel lblIntro = new JLabel("<html><i>\"" + intro + "\"</i></html>");
+        JTextArea lblIntro = new JTextArea("\"" + intro + "\"");
         lblIntro.setFont(new Font("Georgia", Font.ITALIC, 14));
         lblIntro.setForeground(TEXT_DIM);
+        lblIntro.setBackground(CARD);
+        lblIntro.setLineWrap(true);
+        lblIntro.setWrapStyleWord(true);
+        lblIntro.setEditable(false);
+        lblIntro.setFocusable(false);
+        lblIntro.setBorder(new EmptyBorder(0, 0, 0, 0));
         lblIntro.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JLabel lblAnswer = new JLabel("  " + label + "  —  " + answer);
+        JTextArea lblAnswer = new JTextArea(label + "  —  " + answer);
         lblAnswer.setFont(new Font("Georgia", Font.BOLD, 20));
         lblAnswer.setForeground(CORRECT);
-        lblAnswer.setAlignmentX(Component.LEFT_ALIGNMENT);
+        lblAnswer.setBackground(CARD);
+        lblAnswer.setLineWrap(true);
+        lblAnswer.setWrapStyleWord(true);
+        lblAnswer.setEditable(false);
+        lblAnswer.setFocusable(false);
         lblAnswer.setBorder(new EmptyBorder(14, 0, 0, 0));
+        lblAnswer.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         body.add(lblIntro);
         body.add(lblAnswer);
@@ -578,7 +557,7 @@ public class MillionaireGame extends JFrame {
             if (currentIndex > sh) safeHaven = PRIZES[sh];
         }
 
-        int choice = ResultScreen.show(this, won, prize, safeHaven);
+        int choice = ResultScreen.show(this, won, prize, safeHaven, currentIndex);
         if      (choice == 0) restartGame();
         else if (choice == 1) goToMenu();
         else                  System.exit(0);
