@@ -10,11 +10,22 @@ import java.util.*;
  */
 public class QuestionLoader {
 
-    public static List<Question> loadFromFile(String filePath) throws IOException {
-        String content = new String(Files.readAllBytes(Paths.get(filePath)));
-        return parseQuestions(content);
-    }
-
+	public static List<Question> loadFromFile(String filePath) throws IOException {
+	    InputStream is = QuestionLoader.class
+	            .getClassLoader()
+	            .getResourceAsStream(filePath);
+	    if (is == null) {
+	        throw new FileNotFoundException(
+	                "Αδυνατη φορτωση resource: " + filePath
+	        );
+	    }
+	    String content = new String(
+	            is.readAllBytes(),
+	            java.nio.charset.StandardCharsets.UTF_8
+	    );
+	    return parseQuestions(content);
+	}
+	
     private static List<Question> parseQuestions(String json) {
         List<Question> questions = new ArrayList<>();
         // Βρίσκουμε κάθε object { ... } μέσα στο array
