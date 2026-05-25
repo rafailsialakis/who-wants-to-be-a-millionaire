@@ -1,20 +1,23 @@
 package quizgame;
 
 import javax.sound.sampled.*;
-import java.io.File;
+import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Manages all game audio using javax.sound.sampled (built into every JDK).
  * Requires WAV files — convert MP3s with:  ffmpeg -i input.mp3 output.wav
  *
- * Expected files in resources/sounds/:
+ * Expected files in resources/sounds/ (as classpath resources inside the JAR):
  *   menu.wav    – Main menu background music  (loops)
  *   game.wav    – In-game background music    (loops)
  *   answer.wav  – Suspense clip while answer is revealed (plays once)
  *   correct.wav – Correct answer jingle
  *   wrong.wav   – Wrong answer sound
  *   million.wav – Winning the million celebration
+ *   milestone.wav – Safe-haven milestone sound
+ *   start.wav   – Game start sound
  *
  * Answer flow used by MillionaireGame:
  *   1. Player clicks  → playAnswerSuspense()   (stops bg, plays answer.wav)
@@ -22,8 +25,6 @@ import java.io.IOException;
  *   3. Then           → resumeBackground()     (restarts game.wav loop)
  */
 public class SoundManager {
-
-    private static final String DIR = "resources/sounds/";
 
     /** Currently active looping background track (filename, so we can restart it). */
     private String  bgFilename = null;
@@ -44,7 +45,7 @@ public class SoundManager {
      * Call resumeBackground() after the reveal.
      */
     public void playAnswerSuspense() {
-        stopBackground();          // silence bg music during suspense
+        stopBackground();
         playFX("answer.wav");
     }
 
@@ -65,8 +66,8 @@ public class SoundManager {
         stopAll();
         playFX("million.wav");
     }
-    
-    /** Played when the player hit a milestone.*/
+
+    /** Played when the player hits a safe-haven milestone. */
     public void playMilestone() {
         stopFX();
         playFX("milestone.wav");
@@ -80,7 +81,7 @@ public class SoundManager {
      */
     public void resumeBackground() {
         if (bgFilename == null) return;
-        playLoop(bgFilename);       // playLoop stops any existing clip then restarts
+        playLoop(bgFilename);
     }
 
     public void stopBackground() {
@@ -109,8 +110,8 @@ public class SoundManager {
 
     public void setVolume(float v) {
         this.volume = Math.max(0f, Math.min(1f, v));
-        setClipVolume(bgClip,  muted ? 0f : this.volume);
-        setClipVolume(fxClip,  muted ? 0f : this.volume);
+        setClipVolume(bgClip, muted ? 0f : this.volume);
+        setClipVolume(fxClip, muted ? 0f : this.volume);
     }
 
     // ── Internal helpers ────────────────────────────────────────────────────────
@@ -143,26 +144,33 @@ public class SoundManager {
     }
 
     /**
-     * Loads a WAV file into a Clip.
+     * Loads a WAV resource from the classpath (works both in IDE and inside JAR).
      * Normalises the format to PCM_SIGNED so any standard WAV variant is accepted.
      * Returns null (with a console message) if the file is missing or unsupported.
      */
     private Clip loadClip(String filename) {
-        File f = new File(DIR + filename);
-        if (!f.exists()) {
-            System.err.println("[SoundManager] File not found: " + f.getAbsolutePath());
-            return null;
-        }
-        try {
-            AudioInputStream raw = AudioSystem.getAudioInputStream(f);
+        try (InputStream is = getClass()
+                .getClassLoader()
+                .getResourceAsStream("sounds/" + filename)) {
+
+            if (is == null) {
+                System.err.println("[SoundManager] Resource not found: sounds/" + filename);
+                return null;
+            }
+
+            BufferedInputStream bis = new BufferedInputStream(is);
+            AudioInputStream raw = AudioSystem.getAudioInputStream(bis);
 
             AudioFormat fmt = raw.getFormat();
             if (fmt.getEncoding() != AudioFormat.Encoding.PCM_SIGNED) {
                 AudioFormat pcm = new AudioFormat(
-                    AudioFormat.Encoding.PCM_SIGNED,
-                    fmt.getSampleRate(), 16,
-                    fmt.getChannels(), fmt.getChannels() * 2,
-                    fmt.getSampleRate(), false
+                        AudioFormat.Encoding.PCM_SIGNED,
+                        fmt.getSampleRate(),
+                        16,
+                        fmt.getChannels(),
+                        fmt.getChannels() * 2,
+                        fmt.getSampleRate(),
+                        false
                 );
                 raw = AudioSystem.getAudioInputStream(pcm, raw);
             }
@@ -172,10 +180,11 @@ public class SoundManager {
             return clip;
 
         } catch (UnsupportedAudioFileException e) {
-            System.err.println("[SoundManager] Unsupported format: " + filename
-                + " — must be a WAV file.");
+            System.err.println("[SoundManager] Unsupported format: "
+                    + filename + " — must be WAV.");
         } catch (LineUnavailableException | IOException e) {
-            System.err.println("[SoundManager] Cannot load " + filename + ": " + e.getMessage());
+            System.err.println("[SoundManager] Cannot load "
+                    + filename + ": " + e.getMessage());
         }
         return null;
     }
