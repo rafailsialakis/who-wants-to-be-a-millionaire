@@ -4,7 +4,7 @@ Java/Swing quiz game inspired by the classic TV show. Answer 15 questions correc
 
 ## Features
 
-- 15 questions loaded from JSON, randomized each game
+- 45 questions loaded from JSON, randomized each game
 - Prize ladder up to €1,000,000 with safe havens at €1,000 and €32,000
 - Lifelines: 50:50 and Phone-an-LLM
 - 3-second suspense sound before each answer is revealed
