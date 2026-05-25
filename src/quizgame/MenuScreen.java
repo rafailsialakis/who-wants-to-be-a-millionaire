@@ -7,7 +7,6 @@ import java.util.List;
 
 /**
  * Animated "Who Wants to Be a Millionaire" style main menu.
- * Uses SoundManager for MP3 playback (JavaFX-based).
  */
 public class MenuScreen extends JFrame {
 
@@ -40,9 +39,10 @@ public class MenuScreen extends JFrame {
     // ──────────────────────────────────────────────────────────────────────────
 
     public MenuScreen(List<Question> questions) {
-        ImageIcon icon = new ImageIcon("resources/icon.jpg");
-        this.setIconImage(icon.getImage());
-        
+        // Load icon from classpath so it works in JAR too
+        java.net.URL iconUrl = getClass().getClassLoader().getResource("icon.jpg");
+        if (iconUrl != null) setIconImage(new ImageIcon(iconUrl).getImage());
+
         this.questions    = questions;
         this.soundManager = new SoundManager();
 
@@ -55,7 +55,7 @@ public class MenuScreen extends JFrame {
 
         buildUI();
         startAnimation();
-        soundManager.playMenuMusic();   // ← menu.mp3
+        soundManager.playMenuMusic();
         setVisible(true);
     }
 
@@ -92,10 +92,6 @@ public class MenuScreen extends JFrame {
         // ── Buttons ────────────────────────────────────────────────────────────
         JButton btnPlay = buildMenuButton("▶   ΕΝΑΡΞΗ ΠΑΙΧΝΙΔΙΟΥ", GOLD, BG_DARK);
         btnPlay.addActionListener(e -> startGame());
-        
-
-        JButton btnScoreboard = buildMenuButton("🏆   SCOREBOARD", HOT_BLUE, BG_DARK);
-        btnScoreboard.addActionListener(e -> Scoreboard.show(this));
 
         JButton btnExit = buildMenuButton("✕   ΕΞΟΔΟΣ", TEXT_DIM, BG_DARK);
         btnExit.addActionListener(e -> System.exit(0));
@@ -112,11 +108,10 @@ public class MenuScreen extends JFrame {
         gbc.insets = new Insets(4, 0, 14, 0);
         canvas.add(lblDiamond, gbc);
         gbc.insets = new Insets(6, 0, 6, 0);
-        canvas.add(btnPlay,       gbc);
-        canvas.add(btnScoreboard, gbc);
-        canvas.add(btnExit,       gbc);
+        canvas.add(btnPlay, gbc);
+        canvas.add(btnExit, gbc);
         gbc.insets = new Insets(20, 0, 0, 0);
-        canvas.add(btnMute,   gbc);
+        canvas.add(btnMute, gbc);
     }
 
     private JButton buildMenuButton(String text, Color fg, Color bg) {
@@ -168,7 +163,6 @@ public class MenuScreen extends JFrame {
         animTimer.start();
     }
 
-    /** Custom panel that paints the animated radial background */
     private class AnimatedPanel extends JPanel {
         AnimatedPanel() { setBackground(BG_DARK); }
 
@@ -179,9 +173,8 @@ public class MenuScreen extends JFrame {
 
             int w = getWidth(), h = getHeight();
 
-            // Radial gradient background
             RadialGradientPaint radial = new RadialGradientPaint(
-                new Point2D.Float(w / 2f, h / 2f),
+                new java.awt.geom.Point2D.Float(w / 2f, h / 2f),
                 Math.max(w, h) * 0.7f,
                 new float[]{0f, 0.5f, 1f},
                 new Color[]{BG_MID, BG_DARK, new Color(2, 4, 20)}
@@ -189,12 +182,10 @@ public class MenuScreen extends JFrame {
             g2.setPaint(radial);
             g2.fillRect(0, 0, w, h);
 
-            // Pulsing outer ring
             float pulse = (float)(0.7 + 0.3 * Math.sin(glowPhase));
             int r = (int)(Math.min(w, h) * 0.44f);
             int cx = w / 2, cy = h / 2;
 
-            // Concentric ellipses (WWTBAM signature)
             for (int i = 5; i >= 1; i--) {
                 float alpha = pulse * (0.06f + i * 0.025f);
                 g2.setColor(new Color(HOT_BLUE.getRed(), HOT_BLUE.getGreen(), HOT_BLUE.getBlue(),
@@ -204,7 +195,6 @@ public class MenuScreen extends JFrame {
                 g2.drawOval(cx - er, cy - er / 2, er * 2, er);
             }
 
-            // Gold accent lines (left + right diagonal)
             g2.setStroke(new BasicStroke(1.2f));
             g2.setColor(new Color(GOLD.getRed(), GOLD.getGreen(), GOLD.getBlue(), 40));
             for (int i = -3; i <= 3; i++) {
@@ -229,17 +219,16 @@ public class MenuScreen extends JFrame {
 
     private void startGame() {
         animTimer.stop();
-        soundManager.stopAll();         // stop menu music
-        soundManager.playStart();		// start new game music
+        soundManager.stopAll();
+        soundManager.playStart();
         dispose();
-        // Pass soundManager so MillionaireGame can start game.mp3 immediately
         SwingUtilities.invokeLater(() -> new MillionaireGame(questions, soundManager));
     }
 
     // ── Entry point ────────────────────────────────────────────────────────────
 
     public static void main(String[] args) {
-        String jsonPath = "resources/questions.json";
+        String jsonPath = "questions.json";
         List<Question> questions;
         try {
             questions = QuestionLoader.loadFromFile(jsonPath);
