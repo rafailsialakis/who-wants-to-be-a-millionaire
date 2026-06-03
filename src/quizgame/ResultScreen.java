@@ -23,6 +23,8 @@ public class ResultScreen extends JDialog {
     private static final Color WRONG    = new Color(220, 40, 50);
 
     private int result = 2; // default: exit
+    private String savedName = null;
+    private int    savedQ    = -1;
 
     private ResultScreen(JFrame owner, boolean won, String prize, String safeHaven, int questionsAnswered) {
         super(owner, "Αποτέλεσμα", true);
@@ -32,7 +34,7 @@ public class ResultScreen extends JDialog {
         if (iconUrl != null) setIconImage(new ImageIcon(iconUrl).getImage());
 
         setUndecorated(true);
-        setSize(480, 400);
+        setSize(520, 460);
         setLocationRelativeTo(owner);
 
         // ── Animated background ────────────────────────────────────────────────
@@ -110,19 +112,65 @@ public class ResultScreen extends JDialog {
         lblSub.setForeground(TEXT_DIM);
         lblSub.setAlignmentX(Component.CENTER_ALIGNMENT);
 
+        // ── Player name input ──────────────────────────────────────────────────
+        JPanel nameRow = new JPanel(new FlowLayout(FlowLayout.CENTER, 8, 0));
+        nameRow.setOpaque(false);
+        nameRow.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel lblNamePrompt = new JLabel("Όνομα:");
+        lblNamePrompt.setFont(new Font("Georgia", Font.BOLD, 13));
+        lblNamePrompt.setForeground(TEXT_DIM);
+
+        JTextField nameField = new JTextField("Παίκτης", 14);
+        nameField.setFont(new Font("Georgia", Font.PLAIN, 13));
+        nameField.setBackground(new Color(15, 25, 80));
+        nameField.setForeground(WHITE);
+        nameField.setCaretColor(WHITE);
+        nameField.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(60, 90, 200), 1),
+            BorderFactory.createEmptyBorder(4, 8, 4, 8)
+        ));
+        nameField.setHorizontalAlignment(JTextField.CENTER);
+        // Select all on focus so user can just start typing
+        nameField.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent e) { nameField.selectAll(); }
+        });
+
+        nameRow.add(lblNamePrompt);
+        nameRow.add(nameField);
+
         // ── Navigation buttons ─────────────────────────────────────────────────
         JPanel navRow = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
         navRow.setOpaque(false);
         navRow.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JButton btnRestart = buildBtn("🔄  Νέο παιχνίδι", new Color(30, 80, 200),   WHITE);
-        JButton btnMenu    = buildBtn("🏠  Μενού",         new Color(20, 50, 120),   GOLD);
-        JButton btnExit    = buildBtn("✕  Έξοδος",         new Color(80, 20, 20),    new Color(220, 80, 80));
+        JButton btnScoreboard = buildBtn("🏆  Scoreboard",   new Color(60, 45, 0),     GOLD);
+        JButton btnRestart    = buildBtn("🔄  Νέο παιχνίδι", new Color(30, 80, 200),   WHITE);
+        JButton btnMenu       = buildBtn("🏠  Μενού",         new Color(20, 50, 120),   GOLD);
+        JButton btnExit       = buildBtn("✕  Έξοδος",         new Color(80, 20, 20),    new Color(220, 80, 80));
 
-        btnRestart.addActionListener(e -> { result = 0; anim.stop(); dispose(); });
-        btnMenu   .addActionListener(e -> { result = 1; anim.stop(); dispose(); });
-        btnExit   .addActionListener(e -> { result = 2; anim.stop(); dispose(); });
+        // Helper: save score then perform action — only saves once
+        final boolean[] scoreSaved = {false};
+        Runnable saveScore = () -> {
+            if (scoreSaved[0]) return;
+            scoreSaved[0] = true;
+            String name = nameField.getText().trim();
+            if (name.isEmpty()) name = "Ανώνυμος";
+            savedName = name;
+            savedQ    = questionsAnswered;
+            nameField.setEditable(false);
+            ScoreboardManager.addAndSave(name, questionsAnswered, prize);
+        };
 
+        btnScoreboard.addActionListener(e -> {
+            saveScore.run();
+            ScoreboardScreen.show((JFrame) getOwner(), savedName, savedQ);
+        });
+        btnRestart.addActionListener(e -> { saveScore.run(); result = 0; anim.stop(); dispose(); });
+        btnMenu   .addActionListener(e -> { saveScore.run(); result = 1; anim.stop(); dispose(); });
+        btnExit   .addActionListener(e -> { saveScore.run(); result = 2; anim.stop(); dispose(); });
+
+        navRow.add(btnScoreboard);
         navRow.add(btnRestart);
         navRow.add(btnMenu);
         navRow.add(btnExit);
@@ -134,7 +182,9 @@ public class ResultScreen extends JDialog {
         content.add(lblPrize);
         content.add(Box.createVerticalStrut(4));
         content.add(lblSub);
-        content.add(Box.createVerticalStrut(28));
+        content.add(Box.createVerticalStrut(14));
+        content.add(nameRow);
+        content.add(Box.createVerticalStrut(14));
         content.add(navRow);
 
         bg.add(content, BorderLayout.CENTER);
