@@ -93,6 +93,9 @@ public class MenuScreen extends JFrame {
         JButton btnPlay = buildMenuButton("▶   ΕΝΑΡΞΗ ΠΑΙΧΝΙΔΙΟΥ", GOLD, BG_DARK);
         btnPlay.addActionListener(e -> startGame());
 
+        JButton btnScoreboard = buildMenuButton("🏆   ΠΙΝΑΚΑΣ ΑΠΟΤΕΛΕΣΜΑΤΩΝ", HOT_BLUE, BG_DARK);
+        btnScoreboard.addActionListener(e -> ScoreboardScreen.show(this));
+
         JButton btnExit = buildMenuButton("✕   ΕΞΟΔΟΣ", TEXT_DIM, BG_DARK);
         btnExit.addActionListener(e -> System.exit(0));
 
@@ -109,6 +112,7 @@ public class MenuScreen extends JFrame {
         canvas.add(lblDiamond, gbc);
         gbc.insets = new Insets(6, 0, 6, 0);
         canvas.add(btnPlay, gbc);
+        canvas.add(btnScoreboard, gbc);
         canvas.add(btnExit, gbc);
         gbc.insets = new Insets(20, 0, 0, 0);
         canvas.add(btnMute, gbc);
