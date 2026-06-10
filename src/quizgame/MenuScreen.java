@@ -39,7 +39,6 @@ public class MenuScreen extends JFrame {
     // ──────────────────────────────────────────────────────────────────────────
 
     public MenuScreen(List<Question> questions) {
-        // Load icon from classpath so it works in JAR too
         java.net.URL iconUrl = getClass().getClassLoader().getResource("icon.jpg");
         if (iconUrl != null) setIconImage(new ImageIcon(iconUrl).getImage());
 
@@ -85,22 +84,22 @@ public class MenuScreen extends JFrame {
         lblSub.setForeground(TEXT_DIM);
 
         // ── Diamond separator ──────────────────────────────────────────────────
-        JLabel lblDiamond = new JLabel("◆  ◆  ◆");
+        JLabel lblDiamond = new JLabel("*  *  *");
         lblDiamond.setFont(new Font("SansSerif", Font.BOLD, 14));
         lblDiamond.setForeground(GOLD_DIM);
 
         // ── Buttons ────────────────────────────────────────────────────────────
-        JButton btnPlay = buildMenuButton("▶   ΕΝΑΡΞΗ ΠΑΙΧΝΙΔΙΟΥ", GOLD, BG_DARK);
+        JButton btnPlay = buildMenuButton("ΕΝΑΡΞΗ ΠΑΙΧΝΙΔΙΟΥ", GOLD, BG_DARK);
         btnPlay.addActionListener(e -> startGame());
 
-        JButton btnScoreboard = buildMenuButton("🏆   ΠΙΝΑΚΑΣ ΑΠΟΤΕΛΕΣΜΑΤΩΝ", HOT_BLUE, BG_DARK);
+        JButton btnScoreboard = buildMenuButton("ΠΙΝΑΚΑΣ ΑΠΟΤΕΛΕΣΜΑΤΩΝ", HOT_BLUE, BG_DARK);
         btnScoreboard.addActionListener(e -> ScoreboardScreen.show(this));
 
-        JButton btnExit = buildMenuButton("✕   ΕΞΟΔΟΣ", TEXT_DIM, BG_DARK);
+        JButton btnExit = buildMenuButton("ΕΞΟΔΟΣ", TEXT_DIM, BG_DARK);
         btnExit.addActionListener(e -> System.exit(0));
 
         // ── Mute button ────────────────────────────────────────────────────────
-        btnMute = new JButton("🔊  Ήχος ON");
+        btnMute = new JButton("Ηχος ON");
         styleMuteButton(btnMute);
         btnMute.addActionListener(e -> toggleMute());
 
@@ -216,7 +215,7 @@ public class MenuScreen extends JFrame {
     private void toggleMute() {
         boolean nowMuted = !soundManager.isMuted();
         soundManager.setMuted(nowMuted);
-        btnMute.setText(nowMuted ? "🔇  Ήχος OFF" : "🔊  Ήχος ON");
+        btnMute.setText(nowMuted ? "Ηχος OFF" : "Ηχος ON");
     }
 
     // ── Navigation ─────────────────────────────────────────────────────────────
