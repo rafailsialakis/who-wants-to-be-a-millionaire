@@ -66,7 +66,6 @@ public class MillionaireGame extends JFrame {
     // ──────────────────────────────────────────────────────────────────────────
 
     public MillionaireGame(List<Question> questions, SoundManager soundManager) {
-        // Load icon from classpath so it works in JAR too
         java.net.URL iconUrl = getClass().getClassLoader().getResource("icon.jpg");
         if (iconUrl != null) setIconImage(new ImageIcon(iconUrl).getImage());
 
@@ -105,7 +104,7 @@ public class MillionaireGame extends JFrame {
         bar.setBackground(new Color(8, 15, 50));
         bar.setBorder(new EmptyBorder(10, 18, 10, 18));
 
-        JLabel title = new JLabel("⬡  ΠΟΙΟΣ ΘΕΛΕΙ ΝΑ ΓΙΝΕΙ ΕΚΑΤΟΜΜΥΡΙΟΥΧΟΣ;");
+        JLabel title = new JLabel("ΠΟΙΟΣ ΘΕΛΕΙ ΝΑ ΓΙΝΕΙ ΕΚΑΤΟΜΜΥΡΙΟΥΧΟΣ;");
         title.setFont(new Font("Georgia", Font.BOLD, 14));
         title.setForeground(GOLD);
 
@@ -115,10 +114,10 @@ public class MillionaireGame extends JFrame {
         btnFiftyFifty = buildLifelineBtn("50 : 50");
         btnFiftyFifty.addActionListener(e -> doFiftyFifty());
 
-        btnPhone = buildLifelineBtn("📞 LLM");
+        btnPhone = buildLifelineBtn("LLM");
         btnPhone.addActionListener(e -> doPhoneLLM());
 
-        btnMute = new JButton(soundManager.isMuted() ? "🔇 OFF" : "🔊 ON");
+        btnMute = new JButton(soundManager.isMuted() ? "Ηχος OFF" : "Ηχος ON");
         btnMute.setFont(FONT_LIFE);
         btnMute.setBackground(new Color(25, 35, 80));
         btnMute.setForeground(TEXT_DIM);
@@ -181,7 +180,7 @@ public class MillionaireGame extends JFrame {
         center.add(qCard);
         center.add(Box.createVerticalStrut(22));
 
-        String[] labels = {"Α", "Β", "Γ", "Δ"};
+        String[] labels = {"A", "B", "C", "D"};
         JPanel optGrid = new JPanel(new GridLayout(2, 2, 12, 12));
         optGrid.setOpaque(false);
         optGrid.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -196,7 +195,7 @@ public class MillionaireGame extends JFrame {
         center.add(optGrid);
         center.add(Box.createVerticalStrut(18));
 
-        btnNext = new JButton("Επόμενη ερώτηση  →");
+        btnNext = new JButton("Επομενη ερωτηση  ->");
         btnNext.setFont(FONT_LABEL);
         btnNext.setBackground(new Color(30, 80, 200));
         btnNext.setForeground(WHITE);
@@ -314,7 +313,7 @@ public class MillionaireGame extends JFrame {
         lblQuestion.setText(q.getQuestion());
         lblQuestion.setCaretPosition(0);
 
-        String[] labels = {"Α.", "Β.", "Γ.", "Δ."};
+        String[] labels = {"A.", "B.", "C.", "D."};
         String[] opts   = q.getOptions();
         for (int i = 0; i < 4; i++) {
             optionBtns[i].setText(
@@ -328,7 +327,7 @@ public class MillionaireGame extends JFrame {
         updateLadder();
         btnNext.setEnabled(false);
         if (currentIndex == Math.min(questions.size(), PRIZES.length) - 1) {
-            btnNext.setText("Αποτελέσματα  →");
+            btnNext.setText("Αποτελεσματα  ->");
         }
     }
 
@@ -440,11 +439,11 @@ public class MillionaireGame extends JFrame {
         btnPhone.setForeground(ELIM);
 
         Question q        = questions.get(currentIndex);
-        String[] labels   = {"Α", "Β", "Γ", "Δ"};
+        String[] labels   = {"A", "B", "C", "D"};
         String correctLbl = labels[q.getCorrectIndex()];
         String correctTxt = q.getOptions()[q.getCorrectIndex()];
 
-        JDialog ringing = new JDialog(this, "📞 Κλήση...", true);
+        JDialog ringing = new JDialog(this, "Κληση...", true);
         ringing.setSize(380, 180);
         ringing.setLocationRelativeTo(this);
         ringing.setLayout(new BorderLayout());
@@ -452,8 +451,8 @@ public class MillionaireGame extends JFrame {
         ringing.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
 
         JLabel lblRing = new JLabel(
-            "<html><center><b style='font-size:15px'>📞 Κλήση προς LLM...</b><br><br>"
-            + "<i>Παρακαλώ μην κλείσετε τη γραμμή</i></center></html>",
+            "<html><center><b style='font-size:15px'>Κληση προς LLM...</b><br><br>"
+            + "<i>Παρακαλω μην κλεισετε τη γραμμη</i></center></html>",
             SwingConstants.CENTER);
         lblRing.setForeground(WHITE);
         lblRing.setFont(new Font("Georgia", Font.PLAIN, 14));
@@ -471,15 +470,15 @@ public class MillionaireGame extends JFrame {
 
     private void showPhoneAnswer(String label, String answer) {
         String[] intros = {
-            "Εεε... να σου πω, σίγουρα είναι...",
-            "Κοίτα, έχω 100% certainty, είναι...",
-            "Με βεβαιότητα 0.9997 σου λέω...",
-            "Το ξέρω χωρίς καν να σκεφτώ, είναι...",
-            "Μην ακούς τον άλλο, η απάντηση είναι...",
+            "Εεε... να σου πω, σιγουρα ειναι...",
+            "Κοιτα, εχω 100% certainty, ειναι...",
+            "Με βεβαιοτητα 0.9997 σου λεω...",
+            "Το ξερω χωρις καν να σκεφτω, ειναι...",
+            "Μην ακους τον αλλο, η απαντηση ειναι...",
         };
         String intro = intros[new Random().nextInt(intros.length)];
 
-        JDialog dialog = new JDialog(this, "📞 Ο LLM μίλησε!", true);
+        JDialog dialog = new JDialog(this, "O LLM μιλησε!", true);
         dialog.setSize(430, 260);
         dialog.setLocationRelativeTo(this);
         dialog.getContentPane().setBackground(CARD);
@@ -488,7 +487,7 @@ public class MillionaireGame extends JFrame {
         JPanel header = new JPanel();
         header.setBackground(new Color(15, 30, 90));
         header.setBorder(new EmptyBorder(12, 16, 12, 16));
-        JLabel lblH = new JLabel("📞  Phone-an-LLM");
+        JLabel lblH = new JLabel("Phone-an-LLM");
         lblH.setFont(new Font("Georgia", Font.BOLD, 15));
         lblH.setForeground(GOLD);
         header.add(lblH);
@@ -509,7 +508,7 @@ public class MillionaireGame extends JFrame {
         lblIntro.setBorder(new EmptyBorder(0, 0, 0, 0));
         lblIntro.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JTextArea lblAnswer = new JTextArea(label + "  —  " + answer);
+        JTextArea lblAnswer = new JTextArea(label + "  -  " + answer);
         lblAnswer.setFont(new Font("Georgia", Font.BOLD, 20));
         lblAnswer.setForeground(CORRECT);
         lblAnswer.setBackground(CARD);
@@ -523,7 +522,7 @@ public class MillionaireGame extends JFrame {
         body.add(lblIntro);
         body.add(lblAnswer);
 
-        JButton close = new JButton("Ευχαριστώ, φίλε!");
+        JButton close = new JButton("Ευχαριστω, φιλε!");
         close.setFont(FONT_LIFE);
         close.setBackground(new Color(30, 80, 200));
         close.setForeground(WHITE);
@@ -579,6 +578,6 @@ public class MillionaireGame extends JFrame {
     private void toggleMute() {
         boolean nowMuted = !soundManager.isMuted();
         soundManager.setMuted(nowMuted);
-        btnMute.setText(nowMuted ? "🔇 OFF" : "🔊 ON");
+        btnMute.setText(nowMuted ? "Ηχος OFF" : "Ηχος ON");
     }
 }
