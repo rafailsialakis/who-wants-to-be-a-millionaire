@@ -59,7 +59,7 @@ public class ScoreboardScreen extends JDialog {
         header.setOpaque(false);
         header.setBorder(new EmptyBorder(22, 32, 10, 32));
 
-        JLabel lblTitle = new JLabel("🏆  ΠΙΝΑΚΑΣ ΑΠΟΤΕΛΕΣΜΑΤΩΝ", SwingConstants.CENTER);
+        JLabel lblTitle = new JLabel("ΠΙΝΑΚΑΣ ΑΠΟΤΕΛΕΣΜΑΤΩΝ", SwingConstants.CENTER);
         lblTitle.setFont(FONT_TITLE);
         lblTitle.setForeground(GOLD);
         header.add(lblTitle, BorderLayout.CENTER);
