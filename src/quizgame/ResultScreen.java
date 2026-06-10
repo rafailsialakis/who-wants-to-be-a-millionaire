@@ -143,7 +143,7 @@ public class ResultScreen extends JDialog {
         });
 
         // Small submit button
-        JButton btnSubmit = new JButton("✔") {
+        JButton btnSubmit = new JButton("Υποβολή") {
             @Override protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -183,9 +183,9 @@ public class ResultScreen extends JDialog {
         navRow.setOpaque(false);
         navRow.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JButton btnScoreboard = buildBtn("🏆  Scoreboard",   new Color(60, 45, 0),   GOLD);
-        JButton btnRestart    = buildBtn("🔄  Νέο παιχνίδι", new Color(30, 80, 200), WHITE);
-        JButton btnMenu       = buildBtn("🏠  Μενού",         new Color(20, 50, 120), GOLD);
+        JButton btnScoreboard = buildBtn("Scoreboard",   new Color(60, 45, 0),   GOLD);
+        JButton btnRestart    = buildBtn("Νέο παιχνίδι", new Color(30, 80, 200), WHITE);
+        JButton btnMenu       = buildBtn("Μενού",         new Color(20, 50, 120), GOLD);
         JButton btnExit       = buildBtn("✕  Έξοδος",         new Color(80, 20, 20),  new Color(220, 80, 80));
 
         // Scoreboard button starts disabled — enabled only after score is saved
